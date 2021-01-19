@@ -29,7 +29,7 @@ app.get('/notes', (req,res) => {
 app.get('/api/notes', (req, res) => {
 	let notesList = [];
 
-	fs.readFile(__dirname + '/db.json', 'utf8', (err,data) => {
+	fs.readFile(__dirname + '/db/db.json', 'utf8', (err,data) => {
 		if(err) {
 			console.error(err);
 			res.json({"status": 404, "message": "db.json not found"});
@@ -47,7 +47,7 @@ app.get('/api/notes', (req, res) => {
 app.post('/api/notes', (req, res) => {
 	let notesList = [];
 
-	fs.readFile(__dirname + '/db.json', 'utf8', (err, data) => {
+	fs.readFile(__dirname + '/db/db.json', 'utf8', (err, data) => {
 		if(err) {
 			console.error(err);
 			res.json({"status": 500, "message": "Could not write note to db.json"});
@@ -61,7 +61,7 @@ app.post('/api/notes', (req, res) => {
 
 		notesList.push({id: noteID, title: req.body.title, text: req.body.text});
 
-		fs.writeFile(__dirname + '/db.json', JSON.stringify(notesList), (err) => {
+		fs.writeFile(__dirname + '/db/db.json', JSON.stringify(notesList), (err) => {
 			if(err) {
 				console.log(err);
 				res.json({"status": 500, "message": "unable to write to db.json"});
@@ -78,7 +78,7 @@ app.post('/api/notes', (req, res) => {
 // DELETE /api/notes -> update:delete from db.json
 app.delete('/api/notes/:id', (req, res) => {
 	let notesList = [];
-	fs.readFile(__dirname + '/db.json', 'utf8', (err, data) => {
+	fs.readFile(__dirname + '/db/db.json', 'utf8', (err, data) => {
 		if(err) {
 			console.error(err);
 			res.json({"status": 500, "message": "Nothing to delete!"});
