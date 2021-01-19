@@ -27,29 +27,70 @@ app.get('/notes', (req,res) => {
 
 // GET /api/notes -> read db.json (parsed)
 app.get('/api/notes', (req, res) => {
+	let notesList = [];
+
 	fs.readFile(__dirname + '/db.json', 'utf8', (err,data) => {
 		if(err) {
 			console.error(err);
 			res.json({"status": 404, "message": "db.json not found"});
 
 		} else {
-			let notesList = JSON.parse(data);
+			notesList = JSON.parse(data);
 
-			res.json(notesList);
 		}
+
+		res.json(notesList);
 	});
 });
 
 // POST /api/notes -> update:add to db.json
 app.post('/api/notes', (req, res) => {
+	let notesList = [];
+
 	fs.readFile(__dirname + '/db.json', 'utf8', (err, data) => {
 		if(err) {
-			console.log(error);
+			console.error(err);
 			res.json({"status": 500, "message": "Could not write note to db.json"});
-		} else {
-			let notesList = JSON.parse(data);
 
-			notesList.push({id: notesList[notesList.length - 1].id + 1, isStudent: req.body.title, text: req.body.text});
+		} else {
+			notesList = JSON.parse(data);
+			
+		}
+
+		let noteID = notesList.length > 0 ? notesList[notesList.length - 1].id + 1 : 0;
+
+		notesList.push({id: noteID, title: req.body.title, text: req.body.text});
+
+		fs.writeFile(__dirname + '/db.json', JSON.stringify(notesList), (err) => {
+			if(err) {
+				console.log(err);
+				res.json({"status": 500, "message": "unable to write to db.json"});
+
+			} else {
+				res.json(notesList);
+			}
+
+		});
+	});
+
+});
+
+// DELETE /api/notes -> update:delete from db.json
+app.delete('/api/notes/:id', (req, res) => {
+	let notesList = [];
+	fs.readFile(__dirname + '/db.json', 'utf8', (err, data) => {
+		if(err) {
+			console.error(err);
+			res.json({"status": 500, "message": "Nothing to delete!"});
+
+		} else {
+			notesList = JSON.parse(data);
+			
+			for(var i in notesList) {
+				if(notesList[i].id === parseInt(req.params.id)) {
+					notesList.splice(i, 1);
+				}
+			}
 
 			fs.writeFile(__dirname + '/db.json', JSON.stringify(notesList), (err) => {
 				if(err) {
@@ -57,16 +98,20 @@ app.post('/api/notes', (req, res) => {
 					res.json({"status": 500, "message": "unable to write to db.json"});
 
 				} else {
-					res.json(notesList);
+					res.send(notesList);
+
 				}
 
 			});
-
 		}
-	})
+
+	});
+
 });
 
-// DELETE /api/notes -> update:delete from db.json
+/**
+ * listen
+ */
 app.listen(PORT, function() {
 	console.log(`Listening on port ${PORT}`);
 });
