@@ -77,27 +77,31 @@ app.post('/api/notes', (req, res) => {
 
 // DELETE /api/notes -> update:delete from db.json
 app.delete('/api/notes/:id', (req, res) => {
-	let notesList = [];
+
 	fs.readFile(__dirname + '/db/db.json', 'utf8', (err, data) => {
 		if(err) {
 			console.error(err);
 			res.json({"status": 500, "message": "Nothing to delete!"});
 
 		} else {
-			notesList = JSON.parse(data);
-			
+			let notesList = JSON.parse(data);
 			for(var i in notesList) {
 				if(notesList[i].id === parseInt(req.params.id)) {
+					console.log(notesList[i]);
 					notesList.splice(i, 1);
 				}
 			}
 
-			fs.writeFile(__dirname + '/db.json', JSON.stringify(notesList), (err) => {
+			fs.writeFile(__dirname + '/db/db.json', JSON.stringify(notesList), (err) => {
 				if(err) {
 					console.log(err);
 					res.json({"status": 500, "message": "unable to write to db.json"});
 
 				} else {
+					// console.log('==============');
+					// for(var i in notesList) {
+					// 	console.log(notesList[i].title);
+					// }
 					res.send(notesList);
 
 				}
